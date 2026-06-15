@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.id }} Status | DineQuick{% endblock %}
+
+{% block content %}
+<div style="background:#111827;min-height:100vh;">
+
+<div class="px-3 pt-4 pb-2" style="background:#1f2937;border-bottom:1px solid #374151;">
+    <div class="container-fluid">
+        <h4 class="text-white fw-bold mb-0"><i class="bi bi-clock-history me-2 text-orange"></i>Order Tracking</h4>
+        <small class="text-muted">Order <span class="text-orange fw-semibold">#{{ order.id }}</span> · Table {{ order.table_number }}</small>
+    </div>
+</div>
+
+<div class="container py-4" style="max-width:580px;">
+
+    <!-- Status Timeline -->
+    <div class="timeline-card rounded-4 p-4 mb-4" style="background:#1f2937;border:1px solid #374151;">
+        <h6 class="text-white fw-semibold mb-4">Order Progress</h6>
+        <div class="timeline" id="timeline">
+            {% set statuses = [('Placed','check2-circle','Order Received'),('Cooking','fire','Being Prepared'),('Served','emoji-smile','Ready to Enjoy')] %}
+            {% for s, icon, label in statuses %}
+            <div class="timeline-step d-flex align-items-center mb-4 {{ 'active' if order.status == s else ('done' if (order.status == 'Cooking' and s == 'Placed') or (order.status == 'Served') else '') }}" id="step_{{ s }}">
+                <div class="timeline-icon me-3">
+                    <div class="step-circle">
+                        <i class="bi bi-{{ icon }}"></i>
+                    </div>
+                </div>
+                <div>
+                    <p class="fw-semibold mb-0 {{ 'text-white' if order.status == s else 'text-muted' }}">{{ label }}</p>
+                    <small class="text-muted">{{ s }}</small>
+                </div>
+                {% if not loop.last %}<div class="timeline-line"></div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-2">
+            <span class="badge px-4 py-2 fs-6 rounded-pill" id="statusBadge"
+                style="background: {% if order.status == 'Placed' %}rgba(249,115,22,0.2);color:#F97316;border:1px solid #F97316;
+                       {% elif order.status == 'Cooking' %}rgba(59,130,246,0.2);color:#60a5fa;border:1px solid #3b82f6;
+                       {% else %}rgba(16,185,129,0.2);color:#34d399;border:1px solid #10b981;{% endif %}">
+                <i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>{{ order.status }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="rounded-4 p-4 mb-4" style="background:#1f2937;border:1px solid #374151;">
+        <h6 class="text-white fw-semibold mb-3"><i class="bi bi-bag me-2 text-orange"></i>Order Items</h6>
+        <div id="orderItems">
+            {% for item in order.items %}
+            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #374151;">
+                <div>
+                    <p class="text-white mb-0 fw-semibold">{{ item.menu_item.name if item.menu_item else 'Item' }}</p>
+                    <small class="text-muted">₹{{ '%.2f'|format(item.price) }} × {{ item.quantity }}</small>
+                </div>
+                <span class="text-orange fw-semibold">₹{{ '%.2f'|format(item.price * item.quantity) }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-3 pt-2">
+            <div class="d-flex justify-content-between text-muted mb-1">
+                <span>Subtotal</span><span class="text-white">₹{{ '%.2f'|format(order.subtotal) }}</span>
+            </div>
+            <div class="d-flex justify-content-between text-muted mb-2">
+                <span>Tax</span><span class="text-white">₹{{ '%.2f'|format(order.tax_amount) }}</span>
+            </div>
+            <div class="d-flex justify-content-between fw-bold">
+                <span class="text-white">Grand Total</span>
+                <span class="text-orange fs-5">₹{{ '%.2f'|format(order.grand_total) }}</span>
+            </div>
+        </div>
+    </div>
+
+    {% if order.status != 'Served' %}
+    <div class="text-center">
+        <div class="d-inline-flex align-items-center gap-2 text-muted">
+            <div class="spinner-border spinner-border-sm text-orange" role="status"></div>
+            <small>Auto-refreshing every 5 seconds...</small>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-3">
+        <i class="bi bi-emoji-smile fs-1 text-orange mb-2 d-block"></i>
+        <h5 class="text-white">Enjoy your meal!</h5>
+        <a href="/table/{{ order.table_number }}" class="btn btn-orange mt-2">Order More</a>
+    </div>
+    {% endif %}
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ORDER_ID = {{ order.id }};
+const INITIAL_STATUS = "{{ order.status }}";
+
+{% if order.status != 'Served' %}
+function autoRefresh() {
+    fetch(`/api/order/${ORDER_ID}`)
+        .then(r => r.json())
+        .then(data => {
+            if (data.status !== INITIAL_STATUS) {
+                location.reload();
+            }
+        })
+        .catch(() => {});
+}
+setInterval(autoRefresh, 5000);
+{% endif %}
+</script>
+{% endblock %}

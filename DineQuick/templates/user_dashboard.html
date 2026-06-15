@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h2 class="mb-3">
+                Welcome, {{ user.username }}
+            </h2>
+
+            <div class="alert alert-success">
+
+                🎉 Welcome to DineQuick!
+
+                Thank you for choosing us.
+
+                Enjoy your dining experience.
+
+            </div>
+
+            <div class="mb-4">
+                <a href="/table/1"
+                   class="btn btn-warning">
+
+                   Start Ordering
+                   
+                </a>
+
+                <a href="/booking"
+                   class="btn btn-primary">
+
+                    Book Table
+
+                </a>
+
+                <a href="/delivery"
+                   class="btn btn-success">
+
+                    Track Delivery
+
+                </a>
+
+                <a href="/logout"
+                   class="btn btn-danger">
+
+                    Logout
+
+                </a>
+
+            </div>
+
+            <hr>
+
+            <h4>
+                Order History
+            </h4>
+
+            {% if orders %}
+
+            <table class="table table-bordered">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Order ID</th>
+
+                        <th>Table</th>
+
+                        <th>Status</th>
+
+                        <th>Total</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for order in orders %}
+
+                    <tr>
+
+                        <td>{{ order.id }}</td>
+
+                        <td>{{ order.table_number }}</td>
+
+                        <td>{{ order.status }}</td>
+
+                        <td>₹{{ order.grand_total }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <p>No Orders Yet</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
