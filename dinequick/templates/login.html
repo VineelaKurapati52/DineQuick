@@ -1,0 +1,79 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container py-5">
+
+<h2>Login</h2>
+
+<input id="username"
+class="form-control mb-2"
+placeholder="Username">
+
+<input id="password"
+type="password"
+class="form-control mb-3"
+placeholder="Password">
+
+<button
+class="btn btn-primary"
+onclick="loginUser()">
+Login
+</button>
+
+<a href="/register">
+Register
+</a>
+
+</div>
+
+<script>
+
+async function loginUser(){
+
+const response=
+await fetch(
+"/api/login",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+username:
+document.getElementById(
+"username"
+).value,
+
+password:
+document.getElementById(
+"password"
+).value
+})
+}
+);
+
+const data=
+await response.json();
+
+if(response.ok){
+
+if(data.user.role==="admin"){
+window.location="/admin";
+}
+else{
+window.location="/dashboard";
+}
+
+}else{
+
+alert(data.error);
+
+}
+
+}
+
+</script>
+
+{% endblock %}

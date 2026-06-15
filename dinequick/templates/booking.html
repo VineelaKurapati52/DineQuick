@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Book Table
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+<h2>Book Table</h2>
+
+<form>
+
+<div class="mb-3">
+<label>Name</label>
+<input class="form-control">
+</div>
+
+<div class="mb-3">
+<label>Date</label>
+<input type="date"
+class="form-control">
+</div>
+
+<div class="mb-3">
+<label>Time</label>
+<input type="time"
+class="form-control">
+</div>
+
+<button
+type="submit"
+class="btn btn-primary">
+
+Book Table
+
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}
