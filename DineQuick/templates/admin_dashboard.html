@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard | DineQuick{% endblock %}
+
+{% block content %}
+<div style="background:#f8f9fa;min-height:100vh;">
+
+<!-- Admin Header -->
+<div class="px-4 pt-4 pb-3 bg-white shadow-sm">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+            <h4 class="fw-bold mb-0"><i class="bi bi-gear-fill text-orange me-2"></i>Admin Dashboard</h4>
+            <small class="text-muted">Manage menu items, pricing & availability</small>
+        </div>
+        <button class="btn btn-orange px-4" onclick="openAddModal()">
+            <i class="bi bi-plus-lg me-2"></i>Add Menu Item
+        </button>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="adminSearch"
+                               placeholder="Search menu items..." oninput="loadAdminMenu()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="adminCategoryFilter" onchange="loadAdminMenu()">
+                        <option value="All">All Categories</option>
+                        <option>Starters</option>
+                        <option>Main Course</option>
+                        <option>Desserts</option>
+                        <option>Drinks</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <span class="text-muted small"><span id="itemCount">0</span> items</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Table -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background:#f8f9fa;">
+                        <tr>
+                            <th class="ps-4 py-3">Item</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Tax %</th>
+                            <th>Status</th>
+                            <th class="text-center pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminMenuBody">
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="spinner-border text-orange" role="status"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="menuModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold" id="modalTitle">Add Menu Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4">
+                <input type="hidden" id="editItemId">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Item Name *</label>
+                        <input type="text" class="form-control rounded-3" id="itemName" placeholder="e.g. Butter Chicken">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Category *</label>
+                        <select class="form-select rounded-3" id="itemCategory">
+                            <option value="">Select...</option>
+                            <option>Starters</option>
+                            <option>Main Course</option>
+                            <option>Desserts</option>
+                            <option>Drinks</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea class="form-control rounded-3" id="itemDescription" rows="2" placeholder="Brief description..."></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Price (₹) *</label>
+                        <input type="number" class="form-control rounded-3" id="itemPrice" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tax %</label>
+                        <input type="number" class="form-control rounded-3" id="itemTax" min="0" max="100" step="0.1" value="5">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Availability</label>
+                        <select class="form-select rounded-3" id="itemAvailable">
+                            <option value="true">Available</option>
+                            <option value="false">Unavailable</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Image URL</label>
+                        <input type="url" class="form-control rounded-3" id="itemImageUrl" placeholder="https://...">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4">
+                <button type="button" class="btn btn-light px-4 rounded-3" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-orange px-5 rounded-3 fw-semibold" onclick="saveItem()">
+                    <i class="bi bi-check2 me-1"></i>Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow text-center p-4">
+            <i class="bi bi-trash3 text-danger fs-1 mb-3"></i>
+            <h5 class="fw-bold mb-2">Delete Item?</h5>
+            <p class="text-muted small mb-4" id="deleteItemName"></p>
+            <div class="d-flex gap-2 justify-content-center">
+                <button class="btn btn-light px-4 rounded-3" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger px-4 rounded-3" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/admin.js"></script>
+{% endblock %}

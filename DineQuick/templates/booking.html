@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Book Table
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5"
+style="max-width:600px;">
+<h2>Book Table</h2>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="alert alert-success">
+    {{ messages[0] }}
+</div>
+{% endif %}
+{% endwith %}
+
+<form method="POST" action="/booking">
+
+<div class="mb-3">
+<label>Name</label>
+<input type="text" name="name"
+class="form-control" required>
+</div>
+
+<div class="mb-3">
+<label>Date</label>
+<input type="date" name="date"
+class="form-control" required>
+</div>
+
+<div class="mb-3">
+<label>Time</label>
+<input type="time" name="time"
+class="form-control" required>
+</div>
+
+<button
+type="submit"
+class="btn btn-primary">
+
+Book Table
+
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}
